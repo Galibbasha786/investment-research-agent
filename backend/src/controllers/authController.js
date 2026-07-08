@@ -1,5 +1,4 @@
 import User from '../models/User.js';
-import bcrypt from 'bcryptjs';
 
 // @desc    Register user
 // @route   POST /api/auth/register
@@ -9,11 +8,8 @@ export const register = async (req, res) => {
     const { name, email, password } = req.body;
     const searchEmail = email && String(email).trim().toLowerCase();
     
-    console.log('📝 Registration attempt:', { name, email: searchEmail });
-    
     // Validation
     if (!name || !email || !password) {
-      console.log('❌ Missing fields');
       return res.status(400).json({
         success: false,
         message: 'Please provide all required fields'
@@ -23,25 +19,20 @@ export const register = async (req, res) => {
     // Check if user exists
     const existingUser = await User.findOne({ email: searchEmail });
     if (existingUser) {
-      console.log('❌ User already exists:', email);
       return res.status(400).json({
         success: false,
         message: 'User already exists with this email'
       });
     }
     
-    // Create user (ensure password is hashed)
-    console.log('✅ Creating user...');
-    const salt = await bcrypt.genSalt(12);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Create user (password will be hashed by pre-save hook)
     const user = new User({
       name,
       email: searchEmail,
-      password: hashedPassword
+      password: password
     });
     
     await user.save();
-    console.log('✅ User created successfully:', user._id);
     
     // Generate token
     const token = user.generateAuthToken();
@@ -54,8 +45,6 @@ export const register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Registration error:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: error.message || 'Server error during registration',
@@ -72,8 +61,6 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
     const searchEmail = email && String(email).trim().toLowerCase();
 
-    console.log('📝 Login attempt:', { email: searchEmail });
-    
     // Validation
     if (!email || !password) {
       return res.status(400).json({
@@ -85,7 +72,6 @@ export const login = async (req, res) => {
     // Find user with password
     const user = await User.findOne({ email: searchEmail }).select('+password');
     if (!user) {
-      console.log('❌ User not found:', searchEmail);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -94,9 +80,7 @@ export const login = async (req, res) => {
     
     // Check password
     const isPasswordMatch = await user.comparePassword(password);
-    console.log('🔐 Password compare result for', searchEmail, ':', !!isPasswordMatch);
     if (!isPasswordMatch) {
-      console.log('❌ Invalid password for:', searchEmail);
       return res.status(401).json({
         success: false,
         message: 'Invalid credentials'
@@ -106,8 +90,6 @@ export const login = async (req, res) => {
     // Update last login
     user.lastLogin = Date.now();
     await user.save();
-    
-    console.log('✅ User logged in:', user._id);
     
     // Generate token
     const token = user.generateAuthToken();
@@ -120,8 +102,6 @@ export const login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('❌ Login error:', error);
-    console.error('Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: error.message || 'Server error during login'
@@ -148,7 +128,6 @@ export const getMe = async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error('❌ Get user error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Server error fetching user data'
@@ -181,7 +160,6 @@ export const updatePreferences = async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error('❌ Update preferences error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Server error updating preferences'

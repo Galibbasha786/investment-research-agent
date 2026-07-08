@@ -10,9 +10,19 @@ export const protect = async (req, res, next) => {
     }
     
     if (!token) {
+      console.warn('No token provided for route:', req.path);
       return res.status(401).json({
         success: false,
-        message: 'Not authorized to access this route'
+        message: 'Not authorized to access this route. Please login first.',
+        code: 'NO_TOKEN'
+      });
+    }
+    
+    if (!process.env.JWT_SECRET) {
+      console.error('JWT_SECRET not configured in environment');
+      return res.status(500).json({
+        success: false,
+        message: 'Server configuration error: JWT_SECRET not set'
       });
     }
     
@@ -23,24 +33,27 @@ export const protect = async (req, res, next) => {
       if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'User not found'
+          message: 'User not found',
+          code: 'USER_NOT_FOUND'
         });
       }
       
       req.user = user;
       next();
     } catch (error) {
-      console.error('Token verification error:', error);
+      console.error('Token verification error:', error.message);
       if (error.name === 'JsonWebTokenError') {
         return res.status(401).json({
           success: false,
-          message: 'Invalid token'
+          message: 'Invalid or malformed token',
+          code: 'INVALID_TOKEN'
         });
       }
       if (error.name === 'TokenExpiredError') {
         return res.status(401).json({
           success: false,
-          message: 'Token expired'
+          message: 'Token has expired. Please login again.',
+          code: 'TOKEN_EXPIRED'
         });
       }
       throw error;
@@ -49,7 +62,8 @@ export const protect = async (req, res, next) => {
     console.error('Auth middleware error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Server error in authentication'
+      message: 'Server error in authentication',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };

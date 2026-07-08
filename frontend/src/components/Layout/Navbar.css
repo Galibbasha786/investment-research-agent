@@ -28,7 +28,14 @@
 }
 
 .logo-icon {
-  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--gradient-main);
+  color: white;
   animation: float 3s ease-in-out infinite;
 }
 
@@ -111,7 +118,9 @@
   cursor: pointer;
   transition: var(--transition);
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .register-btn {

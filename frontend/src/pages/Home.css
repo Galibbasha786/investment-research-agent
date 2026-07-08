@@ -166,7 +166,14 @@
 }
 
 .card-icon {
-  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: var(--gradient-main);
+  color: white;
 }
 
 .card-data {
@@ -242,7 +249,7 @@
   width: 60px;
   height: 60px;
   border-radius: 12px;
-  background: rgba(108, 92, 231, 0.1);
+  background: var(--gradient-main);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -250,7 +257,10 @@
 }
 
 .feature-icon {
-  font-size: 2rem;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .feature-card h3 {

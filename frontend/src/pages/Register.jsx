@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Rocket, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
@@ -57,13 +58,16 @@ const Register = () => {
       <div className="auth-container fade-in">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-icon">🚀</div>
+            <div className="auth-icon">
+              <Rocket size={32} />
+            </div>
             <h1>Get Started</h1>
             <p>Join the future of investment research</p>
           </div>
 
           {(error || passwordError) && (
             <div className="auth-error">
+              <AlertCircle size={20} style={{ marginRight: '8px' }} />
               {error || passwordError}
             </div>
           )}

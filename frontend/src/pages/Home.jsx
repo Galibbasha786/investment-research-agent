@@ -1,36 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Bot, BarChart3, Target, Search, TrendingUp, FileText, Building2 } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
   const features = [
     {
-      icon: '🤖',
+      icon: <Bot size={28} />,
       title: 'Multi-Agent AI Analysis',
       description: 'Advanced LangGraph workflow with specialized AI agents for comprehensive company research'
     },
     {
-      icon: '📊',
+      icon: <BarChart3 size={28} />,
       title: 'Financial Intelligence',
       description: 'Deep financial analysis with ratios, cash flow, revenue trends, and balance sheet health'
     },
     {
-      icon: '🎯',
+      icon: <Target size={28} />,
       title: 'Smart Recommendations',
       description: 'Invest, Hold, or Pass decisions with transparent reasoning and confidence scoring'
     },
     {
-      icon: '🔍',
+      icon: <Search size={28} />,
       title: 'Explainable AI',
       description: 'Every conclusion is backed by evidence with citations and reasoning traces'
     },
     {
-      icon: '📈',
+      icon: <TrendingUp size={28} />,
       title: 'Real-time Insights',
       description: 'News aggregation, sentiment analysis, and insider trading monitoring'
     },
     {
-      icon: '📄',
+      icon: <FileText size={28} />,
       title: 'Professional Reports',
       description: 'One-click PDF export with comprehensive analysis and recommendations'
     }
@@ -82,21 +83,27 @@ const Home = () => {
           </div>
           <div className="hero-visual">
             <div className="floating-card card-1">
-              <span className="card-icon">📈</span>
+              <span className="card-icon">
+                <TrendingUp size={24} />
+              </span>
               <div className="card-data">
                 <span className="card-value">+23.5%</span>
                 <span className="card-label">Growth Score</span>
               </div>
             </div>
             <div className="floating-card card-2">
-              <span className="card-icon">🏦</span>
+              <span className="card-icon">
+                <Building2 size={24} />
+              </span>
               <div className="card-data">
                 <span className="card-value">A+</span>
                 <span className="card-label">ESG Rating</span>
               </div>
             </div>
             <div className="floating-card card-3">
-              <span className="card-icon">🎯</span>
+              <span className="card-icon">
+                <Target size={24} />
+              </span>
               <div className="card-data">
                 <span className="card-value">85%</span>
                 <span className="card-label">Confidence</span>
@@ -122,7 +129,7 @@ const Home = () => {
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="feature-icon-wrapper">
-                  <span className="feature-icon">{feature.icon}</span>
+                  <div className="feature-icon">{feature.icon}</div>
                 </div>
                 <h3>{feature.title}</h3>
                 <p>{feature.description}</p>

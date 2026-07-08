@@ -101,10 +101,7 @@ const researchSchema = new mongoose.Schema({
       threats: [String]
     },
     businessModel: String,
-    economicMoat: {
-      type: String,
-      description: String
-    },
+    economicMoat: String,
     competitorComparison: [{
       name: String,
       strengths: [String],
@@ -175,37 +172,58 @@ const researchSchema = new mongoose.Schema({
   scores: {
     financialHealth: {
       score: Number,
-      weight: 0.25,
+      weight: {
+        type: Number,
+        default: 0.25
+      },
       explanation: String
     },
     growth: {
       score: Number,
-      weight: 0.20,
+      weight: {
+        type: Number,
+        default: 0.20
+      },
       explanation: String
     },
     profitability: {
       score: Number,
-      weight: 0.15,
+      weight: {
+        type: Number,
+        default: 0.15
+      },
       explanation: String
     },
     risk: {
       score: Number,
-      weight: 0.15,
+      weight: {
+        type: Number,
+        default: 0.15
+      },
       explanation: String
     },
     valuation: {
       score: Number,
-      weight: 0.10,
+      weight: {
+        type: Number,
+        default: 0.10
+      },
       explanation: String
     },
     sentiment: {
       score: Number,
-      weight: 0.10,
+      weight: {
+        type: Number,
+        default: 0.10
+      },
       explanation: String
     },
     managementQuality: {
       score: Number,
-      weight: 0.05,
+      weight: {
+        type: Number,
+        default: 0.05
+      },
       explanation: String
     }
   },

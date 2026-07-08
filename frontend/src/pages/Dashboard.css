@@ -22,6 +22,13 @@
   color: var(--text-secondary);
 }
 
+.dashboard-live-status {
+  color: var(--accent-success);
+  display: block;
+  font-size: 0.85rem;
+  margin-top: 0.35rem;
+}
+
 .new-research-btn {
   padding: 0.8rem 1.5rem;
   background: var(--gradient-main);
@@ -34,6 +41,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  text-decoration: none;
 }
 
 .new-research-btn:hover {
@@ -91,6 +99,15 @@
 
 .research-history h2 {
   margin-bottom: 1.5rem;
+}
+
+.dashboard-error {
+  background: rgba(255, 71, 87, 0.12);
+  border: 1px solid var(--accent-danger);
+  border-radius: 8px;
+  color: var(--accent-danger);
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
 }
 
 .research-list {
@@ -170,6 +187,8 @@
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.85rem;
+  text-align: center;
+  text-decoration: none;
 }
 
 .view-details-btn:hover {

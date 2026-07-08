@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Lock, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
@@ -36,13 +37,16 @@ const Login = () => {
       <div className="auth-container fade-in">
         <div className="auth-card">
           <div className="auth-header">
-            <div className="auth-icon">🔐</div>
+            <div className="auth-icon">
+              <Lock size={32} />
+            </div>
             <h1>Welcome Back</h1>
             <p>Sign in to continue your investment research</p>
           </div>
 
           {error && (
             <div className="auth-error">
+              <AlertCircle size={20} style={{ marginRight: '8px' }} />
               {error}
             </div>
           )}

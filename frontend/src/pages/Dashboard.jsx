@@ -1,45 +1,55 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useResearch } from '../context/ResearchContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [researchHistory, setResearchHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { researchHistory, getResearchHistory, historyLoading, error } = useResearch();
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // Mock data - will be replaced with real API calls
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setResearchHistory([
-        {
-          id: 1,
-          company: 'Apple Inc.',
-          symbol: 'AAPL',
-          date: '2024-01-15',
-          recommendation: 'Invest',
-          confidence: 87
-        },
-        {
-          id: 2,
-          company: 'Tesla Inc.',
-          symbol: 'TSLA',
-          date: '2024-01-14',
-          recommendation: 'Hold',
-          confidence: 65
-        },
-        {
-          id: 3,
-          company: 'Amazon.com Inc.',
-          symbol: 'AMZN',
-          date: '2024-01-13',
-          recommendation: 'Invest',
-          confidence: 92
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    let isMounted = true;
+
+    const refreshHistory = async () => {
+      await getResearchHistory();
+      if (isMounted) {
+        setLastUpdated(new Date());
+      }
+    };
+
+    refreshHistory();
+
+    const refreshInterval = window.setInterval(refreshHistory, 30000);
+    window.addEventListener('focus', refreshHistory);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(refreshInterval);
+      window.removeEventListener('focus', refreshHistory);
+    };
+  }, [getResearchHistory]);
+
+  const formatDate = (dateValue) => {
+    if (!dateValue) return 'Unknown';
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(new Date(dateValue));
+  };
+
+  const getAverageConfidence = (items) => {
+    if (items.length === 0) return 0;
+
+    const total = items.reduce((acc, item) => {
+      return acc + (item.recommendation?.confidenceScore || 0);
+    }, 0);
+
+    return Math.round(total / items.length);
+  };
 
   const getRecommendationColor = (rec) => {
     switch(rec) {
@@ -56,23 +66,37 @@ const Dashboard = () => {
     return 'var(--accent-danger)';
   };
 
+  const historyRows = researchHistory.map((item) => ({
+    id: item._id || item.id,
+    company: item.companyName || item.companyProfile?.name || 'Unknown company',
+    symbol: item.companySymbol || item.companyProfile?.symbol || 'N/A',
+    date: formatDate(item.analysisDate || item.createdAt),
+    recommendation: item.recommendation?.decision || 'Hold',
+    confidence: item.recommendation?.confidenceScore || 0
+  }));
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
         <div className="dashboard-greeting">
           <h1>Welcome back, {user?.name}!</h1>
           <p>Your investment research dashboard</p>
+          {lastUpdated && (
+            <span className="dashboard-live-status">
+              Live data updated {lastUpdated.toLocaleTimeString()}
+            </span>
+          )}
         </div>
-        <button className="new-research-btn">
+        <Link to="/research" className="new-research-btn">
           <span>+</span> New Research
-        </button>
+        </Link>
       </div>
 
       <div className="dashboard-stats">
         <div className="stat-card">
           <span className="stat-icon">📊</span>
           <div className="stat-info">
-            <span className="stat-value">{researchHistory.length}</span>
+            <span className="stat-value">{historyRows.length}</span>
             <span className="stat-label">Total Research</span>
           </div>
         </div>
@@ -80,7 +104,7 @@ const Dashboard = () => {
           <span className="stat-icon">✅</span>
           <div className="stat-info">
             <span className="stat-value">
-              {researchHistory.filter(r => r.recommendation === 'Invest').length}
+              {historyRows.filter(r => r.recommendation === 'Invest').length}
             </span>
             <span className="stat-label">Invest Recommendations</span>
           </div>
@@ -89,9 +113,7 @@ const Dashboard = () => {
           <span className="stat-icon">🎯</span>
           <div className="stat-info">
             <span className="stat-value">
-              {researchHistory.length > 0 
-                ? Math.round(researchHistory.reduce((acc, r) => acc + r.confidence, 0) / researchHistory.length)
-                : 0}%
+              {getAverageConfidence(researchHistory)}%
             </span>
             <span className="stat-label">Avg Confidence</span>
           </div>
@@ -100,7 +122,7 @@ const Dashboard = () => {
           <span className="stat-icon">🏦</span>
           <div className="stat-info">
             <span className="stat-value">
-              {new Set(researchHistory.map(r => r.symbol)).size}
+              {new Set(historyRows.map(r => r.symbol)).size}
             </span>
             <span className="stat-label">Companies Researched</span>
           </div>
@@ -109,15 +131,16 @@ const Dashboard = () => {
 
       <div className="research-history">
         <h2>Recent Research</h2>
-        {loading ? (
+        {error && <div className="dashboard-error">{error}</div>}
+        {historyLoading && historyRows.length === 0 ? (
           <div className="loading-state">
             <div className="shimmer-card"></div>
             <div className="shimmer-card"></div>
             <div className="shimmer-card"></div>
           </div>
-        ) : researchHistory.length > 0 ? (
+        ) : historyRows.length > 0 ? (
           <div className="research-list">
-            {researchHistory.map((item) => (
+            {historyRows.map((item) => (
               <div className="research-item" key={item.id}>
                 <div className="research-company">
                   <span className="company-name">{item.company}</span>
@@ -140,7 +163,7 @@ const Dashboard = () => {
                   />
                   <span className="confidence-value">{item.confidence}%</span>
                 </div>
-                <button className="view-details-btn">View Details</button>
+                <Link to="/research" className="view-details-btn">View Details</Link>
               </div>
             ))}
           </div>

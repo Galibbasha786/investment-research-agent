@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { TrendingUp, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
@@ -17,7 +18,9 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <span className="logo-icon">📈</span>
+          <span className="logo-icon">
+            <TrendingUp size={24} />
+          </span>
           <span className="logo-text gradient-text">AI Invest</span>
         </Link>
 
@@ -44,6 +47,7 @@ const Navbar = () => {
               </li>
               <li>
                 <button onClick={handleLogout} className="nav-btn logout-btn">
+                  <LogOut size={18} />
                   Logout
                 </button>
               </li>

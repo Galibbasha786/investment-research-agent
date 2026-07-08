@@ -31,9 +31,15 @@
 }
 
 .auth-icon {
-  font-size: 3rem;
-  display: block;
-  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  background: var(--gradient-main);
+  border-radius: 12px;
+  color: white;
 }
 
 .auth-header h1 {
@@ -59,6 +65,9 @@
   border-radius: 8px;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .auth-form {

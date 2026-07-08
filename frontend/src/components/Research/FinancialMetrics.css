@@ -1,0 +1,92 @@
+.financial-metrics {
+  background: var(--bg-card);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+
+.financial-metrics h3 {
+  margin: 1.5rem 0 1rem;
+  font-size: 1.1rem;
+}
+
+.financial-metrics h3:first-of-type {
+  margin-top: 0;
+}
+
+.ratios-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.ratio-card {
+  background: var(--bg-secondary);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ratio-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ratio-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.cashflow-grid,
+.balance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cashflow-item,
+.balance-item {
+  background: var(--bg-secondary);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cashflow-label,
+.balance-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cashflow-value,
+.balance-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 0.25rem;
+}
+
+.no-data {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .ratios-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .cashflow-grid,
+  .balance-grid {
+    grid-template-columns: 1fr;
+  }
+}
