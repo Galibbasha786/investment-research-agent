@@ -15,7 +15,7 @@ import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import researchRoutes from './routes/research.js';
 import aiRoutes from './routes/ai.js'; // ADD THIS IMPORT
-
+import ragRoutes from './routes/rag.js'
 // Connect to database
 connectDB();
 
@@ -57,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/research', researchRoutes);
 app.use('/api/ai', aiRoutes); // ADD THIS LINE
 
+app.use('/api/rag', ragRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ 

@@ -5,6 +5,7 @@ import CompanyProfile from '../components/Research/CompanyProfile';
 import FinancialMetrics from '../components/Research/FinancialMetrics';
 import TrendsChart from '../components/Research/TrendsChart';
 import AIAnalysis from '../components/Research/AIAnalysis';
+import RAGPanel from '../components/RAG/RAGPanel';
 import './Research.css';
 
 const Research = () => {
@@ -19,6 +20,7 @@ const Research = () => {
 
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [showAI, setShowAI] = useState(false);
+  const [showRAG, setShowRAG] = useState(false);
 
   const buildRecommendation = (data) => {
     let score = 50;
@@ -47,7 +49,8 @@ const Research = () => {
 
   const handleCompanySelect = async (symbol) => {
     setSelectedSymbol(symbol);
-    setShowAI(false); // Reset AI view when new company is selected
+    setShowAI(false);
+    setShowRAG(false);
     const data = await getCompanyData(symbol);
 
     if (data?.profile?.name) {
@@ -64,7 +67,6 @@ const Research = () => {
   };
 
   const handleAIAnalysisComplete = () => {
-    // Refresh research to get updated data
     getResearchHistory();
   };
 
@@ -136,6 +138,26 @@ const Research = () => {
                 symbol={selectedSymbol}
                 companyData={companyData}
                 onAnalysisComplete={handleAIAnalysisComplete}
+              />
+            )}
+          </div>
+
+          {/* RAG Section */}
+          <div className="rag-section">
+            <div className="rag-toggle">
+              <button 
+                onClick={() => setShowRAG(!showRAG)}
+                className="rag-toggle-btn"
+              >
+                {showRAG ? 'Hide RAG Knowledge Base' : 'Show RAG Knowledge Base'}
+                <span className="rag-badge">📚 RAG</span>
+              </button>
+            </div>
+            
+            {showRAG && selectedSymbol && (
+              <RAGPanel 
+                symbol={selectedSymbol}
+                companyData={companyData}
               />
             )}
           </div>
