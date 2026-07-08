@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useResearch } from '../context/ResearchContext';
 import CompanySearch from '../components/Research/CompanySearch';
 import CompanyProfile from '../components/Research/CompanyProfile';
 import FinancialMetrics from '../components/Research/FinancialMetrics';
 import TrendsChart from '../components/Research/TrendsChart';
+import AIAnalysis from '../components/Research/AIAnalysis';
 import './Research.css';
 
 const Research = () => {
@@ -15,6 +16,9 @@ const Research = () => {
     saveResearch,
     getResearchHistory
   } = useResearch();
+
+  const [selectedSymbol, setSelectedSymbol] = useState(null);
+  const [showAI, setShowAI] = useState(false);
 
   const buildRecommendation = (data) => {
     let score = 50;
@@ -42,6 +46,8 @@ const Research = () => {
   };
 
   const handleCompanySelect = async (symbol) => {
+    setSelectedSymbol(symbol);
+    setShowAI(false); // Reset AI view when new company is selected
     const data = await getCompanyData(symbol);
 
     if (data?.profile?.name) {
@@ -55,6 +61,11 @@ const Research = () => {
       });
       await getResearchHistory();
     }
+  };
+
+  const handleAIAnalysisComplete = () => {
+    // Refresh research to get updated data
+    getResearchHistory();
   };
 
   return (
@@ -106,6 +117,27 @@ const Research = () => {
               revenueTrends={companyData.revenueTrends}
               cashFlow={companyData.cashFlow}
             />
+          </div>
+
+          {/* AI Analysis Section */}
+          <div className="ai-section">
+            <div className="ai-toggle">
+              <button 
+                onClick={() => setShowAI(!showAI)}
+                className="ai-toggle-btn"
+              >
+                {showAI ? 'Hide AI Analysis' : 'Show AI Analysis'}
+                <span className="ai-badge">NEW</span>
+              </button>
+            </div>
+            
+            {showAI && selectedSymbol && (
+              <AIAnalysis 
+                symbol={selectedSymbol}
+                companyData={companyData}
+                onAnalysisComplete={handleAIAnalysisComplete}
+              />
+            )}
           </div>
         </div>
       )}
