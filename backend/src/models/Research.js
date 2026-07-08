@@ -43,7 +43,14 @@ const researchSchema = new mongoose.Schema({
       growth: Number,
       history: [{
         year: Number,
-        value: Number
+        value: Number,
+        revenue: Number,
+        grossProfit: Number,
+        operatingIncome: Number,
+        netIncome: Number,
+        eps: Number,
+        revenueGrowth: Number,
+        incomeGrowth: Number
       }]
     },
     profit: {
@@ -67,12 +74,25 @@ const researchSchema = new mongoose.Schema({
       current: Number,
       previous: Number
     },
-    cashFlow: {
-      operating: Number,
-      investing: Number,
-      financing: Number,
-      freeCashFlow: Number
-    }
+    cashFlow: [{
+      year: Number,
+      operatingCashFlow: Number,
+      investingCashFlow: Number,
+      financingCashFlow: Number,
+      freeCashFlow: Number,
+      capitalExpenditures: Number
+    }],
+    balanceSheet: [{
+      year: Number,
+      totalAssets: Number,
+      totalLiabilities: Number,
+      totalEquity: Number,
+      currentAssets: Number,
+      currentLiabilities: Number,
+      longTermDebt: Number,
+      cash: Number,
+      inventory: Number
+    }]
   },
   
   // Ratio Analysis
@@ -89,57 +109,6 @@ const researchSchema = new mongoose.Schema({
     grossMargin: Number,
     netMargin: Number,
     operatingMargin: Number
-  },
-  
-  // AI Analysis Results
-  aiAnalysis: {
-    executiveSummary: String,
-    swot: {
-      strengths: [String],
-      weaknesses: [String],
-      opportunities: [String],
-      threats: [String]
-    },
-    businessModel: String,
-    economicMoat: String,
-    competitorComparison: [{
-      name: String,
-      strengths: [String],
-      weaknesses: [String]
-    }],
-    industryOutlook: String,
-    riskAssessment: {
-      risks: [{
-        category: String,
-        description: String,
-        severity: String
-      }],
-      overall: String
-    },
-    esgScore: {
-      environmental: Number,
-      social: Number,
-      governance: Number,
-      overall: Number
-    },
-    fraudIndicators: {
-      riskLevel: String,
-      redFlags: [String],
-      score: Number
-    },
-    portfolioFit: String,
-    forecast: {
-      scenarios: {
-        optimistic: String,
-        base: String,
-        pessimistic: String
-      },
-      priceTarget: {
-        high: Number,
-        low: Number,
-        average: Number
-      }
-    }
   },
   
   // News and Sentiment
@@ -255,6 +224,64 @@ const researchSchema = new mongoose.Schema({
     timePeriod: String,
     benchmarkComparison: Number,
     confidence: Number
+  },
+  // AI Analysis Results
+  aiAnalysis: {
+    company: {
+      name: String,
+      symbol: String,
+      industry: String,
+      description: String
+    },
+    analysis: {
+      financial: {
+        score: Number,
+        strengths: [String],
+        weaknesses: [String],
+        redFlags: [String],
+        assessment: String,
+        recommendations: [String]
+      },
+      swot: {
+        strengths: [String],
+        weaknesses: [String],
+        opportunities: [String],
+        threats: [String]
+      },
+      businessModel: {
+        description: String,
+        revenueStreams: [String],
+        customerSegments: [String],
+        competitiveAdvantage: String,
+        economicMoat: String,
+        strengthScore: Number
+      },
+      risk: {
+        riskScores: {
+          financial: Number,
+          business: Number,
+          market: Number,
+          regulatory: Number,
+          competitive: Number,
+          operational: Number
+        },
+        overallRiskScore: Number,
+        keyRisks: [String],
+        mitigationStrategies: [String]
+      }
+    },
+    recommendation: {
+      recommendation: {
+        type: String,
+        enum: ['Invest', 'Hold', 'Pass']
+      },
+      confidenceScore: Number,
+      reasoning: [String],
+      keyDrivers: [String],
+      risksToMonitor: [String]
+    },
+    errors: [String],
+    generatedAt: Date
   },
   
   // Metadata

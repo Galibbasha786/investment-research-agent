@@ -11,10 +11,10 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 import connectDB from './config/database.js';
 import authRoutes from './routes/auth.js';
 import researchRoutes from './routes/research.js';
+import aiRoutes from './routes/ai.js'; // ADD THIS IMPORT
 
 // Connect to database
 connectDB();
@@ -41,8 +41,8 @@ app.use(cors({
 }));
 
 // Body parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' })); // Increased limit for AI responses
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Security middleware
 app.use(helmet());
@@ -55,6 +55,7 @@ if (process.env.NODE_ENV === 'development') {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/research', researchRoutes);
+app.use('/api/ai', aiRoutes); // ADD THIS LINE
 
 // Health check
 app.get('/health', (req, res) => {
@@ -84,19 +85,20 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5001;
 const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV}`);
-  console.log(`API URL: http://localhost:${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📡 Environment: ${process.env.NODE_ENV}`);
+  console.log(`🌐 API URL: http://localhost:${PORT}`);
+  console.log('✨ AI Analysis Available at /api/ai');
 });
 
 server.on('error', (error) => {
   if (error.code === 'EADDRINUSE') {
-    console.error(`Port ${PORT} is already in use. Stop the other backend process or set PORT in backend/.env.`);
+    console.error(`❌ Port ${PORT} is already in use. Stop the other backend process or set PORT in backend/.env.`);
     process.exit(1);
   }
 
   if (error.code === 'EPERM') {
-    console.error(`Permission denied while binding port ${PORT}. Try a different PORT in backend/.env.`);
+    console.error(`❌ Permission denied while binding port ${PORT}. Try a different PORT in backend/.env.`);
     process.exit(1);
   }
 
