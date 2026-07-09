@@ -1,23 +1,24 @@
 .company-search {
   position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .search-wrapper {
   display: flex;
   align-items: center;
-  background: var(--bg-card);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012)), var(--bg-card);
   border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 0.5rem 1rem;
+  border-radius: var(--radius-lg);
+  padding: 0.65rem 1rem;
   transition: var(--transition);
+  box-shadow: var(--shadow-card);
 }
 
 .search-wrapper:focus-within {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18), var(--shadow-card);
 }
 
 .search-icon {
@@ -65,7 +66,7 @@
   right: 0;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   max-height: 300px;
   overflow-y: auto;
   z-index: 1000;
@@ -89,11 +90,12 @@
 
 .search-result-item:hover {
   background: var(--bg-hover);
+  transform: translateX(3px);
 }
 
 .result-symbol {
   font-weight: 600;
-  color: var(--accent-primary);
+  color: var(--accent-success);
   min-width: 60px;
 }
 

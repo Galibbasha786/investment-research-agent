@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, AlertCircle } from 'lucide-react';
+import { BarChart3, Bot, Lock, AlertCircle, Target } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
 
@@ -100,17 +100,17 @@ const Login = () => {
 
         <div className="auth-features">
           <div className="feature-item slide-in" style={{ animationDelay: '0.1s' }}>
-            <span className="feature-icon">🤖</span>
+            <span className="feature-icon"><Bot size={28} /></span>
             <h3>AI-Powered Research</h3>
             <p>Get deep insights with multi-agent AI analysis</p>
           </div>
           <div className="feature-item slide-in" style={{ animationDelay: '0.2s' }}>
-            <span className="feature-icon">📊</span>
+            <span className="feature-icon"><BarChart3 size={28} /></span>
             <h3>Comprehensive Analytics</h3>
             <p>Financial ratios, trends, and sentiment analysis</p>
           </div>
           <div className="feature-item slide-in" style={{ animationDelay: '0.3s' }}>
-            <span className="feature-icon">🎯</span>
+            <span className="feature-icon"><Target size={28} /></span>
             <h3>Smart Recommendations</h3>
             <p>Invest, Hold, or Pass with transparent reasoning</p>
           </div>

@@ -1,62 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResearch } from '../context/ResearchContext';
+import axios from 'axios';
+import { 
+  TrendingUp, 
+  TrendingDown, 
+  BarChart3, 
+  Building2, 
+  Clock, 
+  Trash2, 
+  Eye,
+  FileText,
+  Download,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Database
+} from 'lucide-react';
 import './Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { researchHistory, getResearchHistory, historyLoading, error } = useResearch();
-  const [lastUpdated, setLastUpdated] = useState(null);
+  const { researchHistory, getResearchHistory, loading, error } = useResearch();
+  const navigate = useNavigate();
+  const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
   useEffect(() => {
-    let isMounted = true;
+    getResearchHistory();
+  }, []);
 
-    const refreshHistory = async () => {
-      await getResearchHistory();
-      if (isMounted) {
-        setLastUpdated(new Date());
-      }
-    };
-
-    refreshHistory();
-
-    const refreshInterval = window.setInterval(refreshHistory, 30000);
-    window.addEventListener('focus', refreshHistory);
-
-    return () => {
-      isMounted = false;
-      window.clearInterval(refreshInterval);
-      window.removeEventListener('focus', refreshHistory);
-    };
-  }, [getResearchHistory]);
-
-  const formatDate = (dateValue) => {
-    if (!dateValue) return 'Unknown';
-
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(new Date(dateValue));
+  const handleViewDetails = (researchId) => {
+    navigate(`/research/${researchId}`);
   };
 
-  const getAverageConfidence = (items) => {
-    if (items.length === 0) return 0;
+  const handleDeleteResearch = async (id) => {
+    try {
+      setDeletingId(id);
+      // Call API to delete
+      const response = await axios.delete(`/api/research/${id}`);
 
-    const total = items.reduce((acc, item) => {
-      return acc + (item.recommendation?.confidenceScore || 0);
-    }, 0);
+      if (response.data.success) {
+        await getResearchHistory(); // Refresh list
+        setShowDeleteConfirm(null);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
-    return Math.round(total / items.length);
+  const handleExportReport = async (research) => {
+    try {
+      const response = await axios.post('/api/research/export', 
+        { researchId: research._id },
+        { responseType: 'blob' }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${research.companyName}_Investment_Report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Export error:', error);
+    }
   };
 
   const getRecommendationColor = (rec) => {
+    if (!rec) return 'var(--text-secondary)';
     switch(rec) {
       case 'Invest': return 'var(--accent-success)';
       case 'Hold': return 'var(--accent-warning)';
       case 'Pass': return 'var(--accent-danger)';
       default: return 'var(--text-secondary)';
+    }
+  };
+
+  const getRecommendationIcon = (rec) => {
+    if (!rec) return null;
+    switch(rec) {
+      case 'Invest': return <CheckCircle size={16} />;
+      case 'Hold': return <AlertCircle size={16} />;
+      case 'Pass': return <XCircle size={16} />;
+      default: return null;
     }
   };
 
@@ -66,112 +98,190 @@ const Dashboard = () => {
     return 'var(--accent-danger)';
   };
 
-  const historyRows = researchHistory.map((item) => ({
-    id: item._id || item.id,
-    company: item.companyName || item.companyProfile?.name || 'Unknown company',
-    symbol: item.companySymbol || item.companyProfile?.symbol || 'N/A',
-    date: formatDate(item.analysisDate || item.createdAt),
-    recommendation: item.recommendation?.decision || 'Hold',
-    confidence: item.recommendation?.confidenceScore || 0
-  }));
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const stats = {
+    total: researchHistory?.length || 0,
+    invest: researchHistory?.filter(r => r.recommendation?.decision === 'Invest').length || 0,
+    hold: researchHistory?.filter(r => r.recommendation?.decision === 'Hold').length || 0,
+    pass: researchHistory?.filter(r => r.recommendation?.decision === 'Pass').length || 0,
+    avgConfidence: researchHistory?.length > 0 
+      ? Math.round(researchHistory.reduce((acc, r) => acc + (r.recommendation?.confidenceScore || 0), 0) / researchHistory.length)
+      : 0
+  };
 
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
         <div className="dashboard-greeting">
-          <h1>Welcome back, {user?.name}!</h1>
+          <h1>Welcome back, {user?.name}</h1>
           <p>Your investment research dashboard</p>
-          {lastUpdated && (
-            <span className="dashboard-live-status">
-              Live data updated {lastUpdated.toLocaleTimeString()}
-            </span>
-          )}
+          <span className="dashboard-live-status">
+            Live
+          </span>
         </div>
         <Link to="/research" className="new-research-btn">
-          <span>+</span> New Research
+          <FileText size={20} />
+          New Research
         </Link>
       </div>
 
       <div className="dashboard-stats">
         <div className="stat-card">
-          <span className="stat-icon">📊</span>
+          <div className="stat-icon">
+            <Database size={24} />
+          </div>
           <div className="stat-info">
-            <span className="stat-value">{historyRows.length}</span>
+            <span className="stat-value">{stats.total}</span>
             <span className="stat-label">Total Research</span>
           </div>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">✅</span>
+          <div className="stat-icon" style={{ color: 'var(--accent-success)' }}>
+            <TrendingUp size={24} />
+          </div>
           <div className="stat-info">
-            <span className="stat-value">
-              {historyRows.filter(r => r.recommendation === 'Invest').length}
-            </span>
+            <span className="stat-value" style={{ color: 'var(--accent-success)' }}>{stats.invest}</span>
             <span className="stat-label">Invest Recommendations</span>
           </div>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">🎯</span>
+          <div className="stat-icon" style={{ color: 'var(--accent-warning)' }}>
+            <BarChart3 size={24} />
+          </div>
           <div className="stat-info">
-            <span className="stat-value">
-              {getAverageConfidence(researchHistory)}%
-            </span>
-            <span className="stat-label">Avg Confidence</span>
+            <span className="stat-value" style={{ color: 'var(--accent-warning)' }}>{stats.hold}</span>
+            <span className="stat-label">Hold Recommendations</span>
           </div>
         </div>
         <div className="stat-card">
-          <span className="stat-icon">🏦</span>
+          <div className="stat-icon" style={{ color: 'var(--accent-danger)' }}>
+            <TrendingDown size={24} />
+          </div>
           <div className="stat-info">
-            <span className="stat-value">
-              {new Set(historyRows.map(r => r.symbol)).size}
-            </span>
-            <span className="stat-label">Companies Researched</span>
+            <span className="stat-value" style={{ color: 'var(--accent-danger)' }}>{stats.pass}</span>
+            <span className="stat-label">Pass Recommendations</span>
           </div>
         </div>
       </div>
 
       <div className="research-history">
-        <h2>Recent Research</h2>
-        {error && <div className="dashboard-error">{error}</div>}
-        {historyLoading && historyRows.length === 0 ? (
+        <h2>Research History</h2>
+
+        {error && (
+          <div className="dashboard-error">
+            <AlertCircle size={20} />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {loading ? (
           <div className="loading-state">
             <div className="shimmer-card"></div>
             <div className="shimmer-card"></div>
             <div className="shimmer-card"></div>
           </div>
-        ) : historyRows.length > 0 ? (
+        ) : researchHistory?.length > 0 ? (
           <div className="research-list">
-            {historyRows.map((item) => (
-              <div className="research-item" key={item.id}>
+            {researchHistory.map((item) => (
+              <div className="research-item" key={item._id}>
                 <div className="research-company">
-                  <span className="company-name">{item.company}</span>
-                  <span className="company-symbol">{item.symbol}</span>
+                  <span className="company-name">{item.companyName}</span>
+                  <span className="company-symbol">{item.companySymbol}</span>
                 </div>
-                <div className="research-date">{item.date}</div>
+                <div className="research-date">
+                  <Clock size={14} />
+                  {formatDate(item.analysisDate || item.createdAt)}
+                </div>
                 <div 
                   className="research-recommendation"
-                  style={{ color: getRecommendationColor(item.recommendation) }}
+                  style={{ 
+                    color: getRecommendationColor(item.recommendation?.decision),
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
                 >
-                  {item.recommendation}
+                  {getRecommendationIcon(item.recommendation?.decision)}
+                  {item.recommendation?.decision || 'N/A'}
                 </div>
                 <div className="research-confidence">
                   <div 
                     className="confidence-bar"
                     style={{ 
-                      width: `${item.confidence}%`,
-                      background: getConfidenceColor(item.confidence)
+                      width: `${item.recommendation?.confidenceScore || 0}%`,
+                      background: getConfidenceColor(item.recommendation?.confidenceScore || 0),
+                      color: getConfidenceColor(item.recommendation?.confidenceScore || 0)
                     }}
                   />
-                  <span className="confidence-value">{item.confidence}%</span>
+                  <span className="confidence-value">{item.recommendation?.confidenceScore || 0}%</span>
                 </div>
-                <Link to="/research" className="view-details-btn">View Details</Link>
+                <div className="research-actions">
+                  <button 
+                    onClick={() => handleViewDetails(item._id)}
+                    className="action-btn view-btn"
+                    title="View Details"
+                  >
+                    <Eye size={16} />
+                  </button>
+                  <button 
+                    onClick={() => handleExportReport(item)}
+                    className="action-btn export-btn"
+                    title="Export Report"
+                  >
+                    <Download size={16} />
+                  </button>
+                  <button 
+                    onClick={() => setShowDeleteConfirm(item._id)}
+                    className="action-btn delete-btn"
+                    title="Delete Research"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+
+                {showDeleteConfirm === item._id && (
+                  <div className="delete-confirm-overlay">
+                    <div className="delete-confirm-dialog">
+                      <p>Delete research for {item.companyName}?</p>
+                      <div className="delete-confirm-actions">
+                        <button 
+                          onClick={() => handleDeleteResearch(item._id)}
+                          className="confirm-delete-btn"
+                          disabled={deletingId === item._id}
+                        >
+                          {deletingId === item._id ? 'Deleting...' : 'Delete'}
+                        </button>
+                        <button 
+                          onClick={() => setShowDeleteConfirm(null)}
+                          className="cancel-delete-btn"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         ) : (
           <div className="empty-state">
-            <span className="empty-icon">🔍</span>
+            <div className="empty-icon">
+              <Building2 size={28} />
+            </div>
             <p>No research history yet</p>
             <p className="empty-sub">Start your first company analysis</p>
+            <Link to="/research" className="empty-action-btn">
+              <FileText size={16} />
+              Start Research
+            </Link>
           </div>
         )}
       </div>

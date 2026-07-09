@@ -1,8 +1,9 @@
 .financial-metrics {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), var(--bg-card);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 1.5rem;
+  box-shadow: var(--shadow-card);
 }
 
 .financial-metrics h3 {
@@ -21,11 +22,20 @@
 }
 
 .ratio-card {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.035);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  transition: var(--transition);
+}
+
+.ratio-card:hover,
+.cashflow-item:hover,
+.balance-item:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-2px);
 }
 
 .ratio-label {
@@ -51,11 +61,13 @@
 
 .cashflow-item,
 .balance-item {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.035);
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  transition: var(--transition);
 }
 
 .cashflow-label,

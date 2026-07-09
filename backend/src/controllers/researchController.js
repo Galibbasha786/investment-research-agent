@@ -9,7 +9,7 @@ import {
   getSecFinancialFallback
 } from '../services/companyService.js';
 import Research from '../models/Research.js';
-
+import PDFDocument from 'pdfkit';
 // @desc    Search companies
 // @route   GET /api/research/search
 // @access  Private
@@ -269,6 +269,147 @@ export const getResearch = async (req, res) => {
     res.status(500).json({
       success: false,
       message: error.message || 'Server error fetching research'
+    });
+  }
+};
+// @desc    Delete research
+// @route   DELETE /api/research/:id
+// @access  Private
+export const deleteResearch = async (req, res) => {
+  try {
+    const research = await Research.findOne({
+      _id: req.params.id,
+      user: req.user.id
+    });
+
+    if (!research) {
+      return res.status(404).json({
+        success: false,
+        message: 'Research not found'
+      });
+    }
+
+    await research.deleteOne();
+
+    // Remove from user's research history
+    req.user.researchHistory = req.user.researchHistory.filter(
+      id => id.toString() !== req.params.id
+    );
+    await req.user.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Research deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete research error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Server error deleting research'
+    });
+  }
+};
+export const exportResearchPDF = async (req, res) => {
+  try {
+    const { researchId } = req.body;
+
+    const research = await Research.findOne({
+      _id: researchId,
+      user: req.user.id
+    });
+
+    if (!research) {
+      return res.status(404).json({
+        success: false,
+        message: 'Research not found'
+      });
+    }
+
+    const doc = new PDFDocument({
+      size: 'A4',
+      margin: 50
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename=${research.companyName}_Investment_Report.pdf`);
+
+    doc.pipe(res);
+
+    // Title
+    doc.fontSize(24)
+       .fillColor('#1a1a2e')
+       .text('Investment Research Report', { align: 'center' });
+    
+    doc.moveDown();
+    
+    doc.fontSize(18)
+       .fillColor('#16213e')
+       .text(research.companyName, { align: 'center' });
+    
+    doc.fontSize(12)
+       .fillColor('#555')
+       .text(`Symbol: ${research.companySymbol}`, { align: 'center' });
+    
+    doc.moveDown();
+
+    // Recommendation
+    doc.fontSize(16)
+       .fillColor('#1a1a2e')
+       .text('Recommendation', { underline: true });
+    
+    doc.fontSize(14)
+       .fillColor(research.recommendation?.decision === 'Invest' ? '#00b894' : 
+                  research.recommendation?.decision === 'Hold' ? '#fdcb6e' : '#e17055')
+       .text(`Decision: ${research.recommendation?.decision || 'N/A'}`);
+    
+    doc.fontSize(12)
+       .fillColor('#555')
+       .text(`Confidence: ${research.recommendation?.confidenceScore || 0}%`);
+    
+    doc.moveDown();
+
+    // Reasoning
+    if (research.recommendation?.reasoning?.length > 0) {
+      doc.fontSize(14)
+         .fillColor('#1a1a2e')
+         .text('Key Reasoning', { underline: true });
+      
+      research.recommendation.reasoning.forEach(reason => {
+        doc.fontSize(11)
+           .fillColor('#444')
+           .text(`• ${reason}`);
+      });
+      doc.moveDown();
+    }
+
+    // Scores
+    if (research.scores) {
+      doc.fontSize(14)
+         .fillColor('#1a1a2e')
+         .text('Score Breakdown', { underline: true });
+      doc.moveDown();
+
+      Object.entries(research.scores).forEach(([key, value]) => {
+        const label = key.replace(/([A-Z])/g, ' $1').trim();
+        doc.fontSize(11)
+           .fillColor('#333')
+           .text(`${label}: ${value.score || 0}%`);
+      });
+      doc.moveDown();
+    }
+
+    // Footer
+    doc.fontSize(10)
+       .fillColor('#999')
+       .text(`Generated on: ${new Date().toISOString().split('T')[0]}`, { align: 'center' });
+    
+    doc.end();
+
+  } catch (error) {
+    console.error('Export error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Server error exporting report'
     });
   }
 };

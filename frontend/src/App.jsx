@@ -10,7 +10,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Research from './pages/Research';
 import './App.css';
-
+import ResearchDetail from './pages/ResearchDetail';
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
@@ -57,7 +57,15 @@ function AppContent() {
                       <Research />
                     </ProtectedRoute>
                   } 
-                />
+                /><Route 
+  path="/research/:id" 
+  element={
+    <ProtectedRoute>
+      <ResearchDetail />
+    </ProtectedRoute>
+  } 
+/>
+
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>
             </main>

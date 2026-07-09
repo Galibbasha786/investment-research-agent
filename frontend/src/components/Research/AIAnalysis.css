@@ -1,9 +1,10 @@
 .ai-analysis-placeholder {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), var(--bg-card);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 3rem;
   text-align: center;
+  box-shadow: var(--shadow-card);
 }
 
 .ai-prompt {
@@ -30,20 +31,24 @@
   background: var(--gradient-main);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
 }
 
 .ai-analyze-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.4);
+  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.24);
 }
 
 .ai-analysis-loading {
   background: var(--bg-card);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 3rem;
   text-align: center;
@@ -75,7 +80,7 @@
 .agent-dot {
   padding: 0.5rem 1rem;
   background: var(--bg-secondary);
-  border-radius: 20px;
+  border-radius: 999px;
   font-size: 0.85rem;
   color: var(--text-secondary);
   opacity: 0.5;
@@ -84,13 +89,16 @@
 
 .agent-dot.active {
   opacity: 1;
-  background: rgba(108, 92, 231, 0.2);
+  background: rgba(20, 184, 166, 0.12);
   color: var(--accent-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
 .ai-analysis-error {
   background: var(--bg-card);
-  border-radius: var(--border-radius);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--accent-danger);
   padding: 2rem;
   text-align: center;
@@ -103,7 +111,7 @@
   background: transparent;
   border: 1px solid var(--accent-danger);
   color: var(--accent-danger);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -114,11 +122,12 @@
 }
 
 .ai-analysis-results {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), var(--bg-card);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 2rem;
   margin-top: 2rem;
+  box-shadow: var(--shadow-card);
 }
 
 .ai-header {
@@ -128,18 +137,25 @@
   margin-bottom: 2rem;
 }
 
+.ai-header h3,
+.analysis-section h4 {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .ai-badge {
   padding: 0.3rem 0.8rem;
-  background: rgba(108, 92, 231, 0.1);
-  border: 1px solid rgba(108, 92, 231, 0.2);
-  border-radius: 20px;
+  background: rgba(20, 184, 166, 0.1);
+  border: 1px solid rgba(20, 184, 166, 0.22);
+  border-radius: 999px;
   font-size: 0.8rem;
   color: var(--accent-secondary);
 }
 
 .recommendation-card {
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
   border-left: 4px solid var(--accent-primary);
   margin-bottom: 2rem;
@@ -235,8 +251,9 @@
 }
 
 .analysis-section {
-  background: var(--bg-secondary);
-  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
   padding: 1.5rem;
 }
 
@@ -335,7 +352,7 @@
   justify-content: space-between;
   padding: 0.4rem 0.6rem;
   background: var(--bg-primary);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
 }
 
@@ -394,10 +411,13 @@
   background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .regenerate-btn:hover {

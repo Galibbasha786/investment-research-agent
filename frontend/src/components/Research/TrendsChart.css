@@ -1,8 +1,9 @@
 .trends-chart {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), var(--bg-card);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 1.5rem;
+  box-shadow: var(--shadow-card);
 }
 
 .trends-chart h3 {

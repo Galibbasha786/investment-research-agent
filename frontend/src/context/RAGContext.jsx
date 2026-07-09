@@ -39,7 +39,7 @@ export const RAGProvider = ({ children }) => {
         const docResponse = await axios.get(`/api/rag/documents/${symbol}`);
         setDocuments(docResponse.data.data);
       } catch (docErr) {
-        console.warn('⚠️ Could not load document chunks after processing:', docErr.message);
+        console.warn('Could not load document chunks after processing:', docErr.message);
       }
 
       return result;

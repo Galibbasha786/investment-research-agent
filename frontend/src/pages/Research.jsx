@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BarChart3, Brain, Database, Gauge } from 'lucide-react';
 import { useResearch } from '../context/ResearchContext';
 import CompanySearch from '../components/Research/CompanySearch';
 import CompanyProfile from '../components/Research/CompanyProfile';
@@ -6,6 +7,7 @@ import FinancialMetrics from '../components/Research/FinancialMetrics';
 import TrendsChart from '../components/Research/TrendsChart';
 import AIAnalysis from '../components/Research/AIAnalysis';
 import RAGPanel from '../components/RAG/RAGPanel';
+import ScoreCard from '../components/Scoring/ScoreCard';
 import './Research.css';
 
 const Research = () => {
@@ -21,6 +23,7 @@ const Research = () => {
   const [selectedSymbol, setSelectedSymbol] = useState(null);
   const [showAI, setShowAI] = useState(false);
   const [showRAG, setShowRAG] = useState(false);
+  const [showScore, setShowScore] = useState(false);
 
   const buildRecommendation = (data) => {
     let score = 50;
@@ -51,6 +54,7 @@ const Research = () => {
     setSelectedSymbol(symbol);
     setShowAI(false);
     setShowRAG(false);
+    setShowScore(false);
     const data = await getCompanyData(symbol);
 
     if (data?.profile?.name) {
@@ -73,8 +77,16 @@ const Research = () => {
   return (
     <div className="research-page">
       <div className="research-header">
-        <h1>Company Research</h1>
-        <p>Search and analyze any company's financial data</p>
+        <div>
+          <span className="research-eyebrow">Research workspace</span>
+          <h1>Company Research</h1>
+          <p>Search, score, and analyze public companies with structured financial intelligence.</p>
+        </div>
+        <div className="research-header-metrics">
+          <span><Database size={16} /> Financials</span>
+          <span><Brain size={16} /> AI analysis</span>
+          <span><Gauge size={16} /> Scoring</span>
+        </div>
       </div>
 
       <CompanySearch onSelect={handleCompanySelect} />
@@ -128,8 +140,9 @@ const Research = () => {
                 onClick={() => setShowAI(!showAI)}
                 className="ai-toggle-btn"
               >
+                <Brain size={18} />
                 {showAI ? 'Hide AI Analysis' : 'Show AI Analysis'}
-                <span className="ai-badge">NEW</span>
+                <span className="ai-badge">AI</span>
               </button>
             </div>
             
@@ -141,6 +154,25 @@ const Research = () => {
               />
             )}
           </div>
+          <div className="score-section">
+            <div className="score-toggle">
+              <button 
+                onClick={() => setShowScore(!showScore)}
+                className="score-toggle-btn"
+              >
+                <BarChart3 size={18} />
+                {showScore ? 'Hide Investment Score' : 'Show Investment Score'}
+                <span className="score-badge">Score</span>
+              </button>
+            </div>
+            
+            {showScore && selectedSymbol && (
+              <ScoreCard 
+                symbol={selectedSymbol}
+                companyData={companyData}
+              />
+            )}
+          </div>
 
           {/* RAG Section */}
           <div className="rag-section">
@@ -149,8 +181,9 @@ const Research = () => {
                 onClick={() => setShowRAG(!showRAG)}
                 className="rag-toggle-btn"
               >
+                <Database size={18} />
                 {showRAG ? 'Hide RAG Knowledge Base' : 'Show RAG Knowledge Base'}
-                <span className="rag-badge">📚 RAG</span>
+                <span className="rag-badge">RAG</span>
               </button>
             </div>
             

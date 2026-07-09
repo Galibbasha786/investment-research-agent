@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bot, BarChart3, Target, Search, TrendingUp, FileText, Building2 } from 'lucide-react';
+import { ArrowRight, Bot, BarChart3, Target, Search, TrendingUp, FileText, ShieldCheck, Activity } from 'lucide-react';
 import './Home.css';
 
 const Home = () => {
@@ -44,7 +44,7 @@ const Home = () => {
         <div className="hero-container">
           <div className="hero-content">
             <div className="hero-badge">
-              <span className="badge-dot">●</span>
+              <span className="badge-dot" />
               AI-Powered Investment Research
             </div>
             <h1 className="hero-title">
@@ -58,7 +58,7 @@ const Home = () => {
             <div className="hero-buttons">
               <Link to="/register" className="hero-btn primary">
                 Get Started Free
-                <span className="btn-arrow">→</span>
+                <ArrowRight size={18} />
               </Link>
               <Link to="/research" className="hero-btn secondary">
                 View Demo
@@ -82,6 +82,27 @@ const Home = () => {
             </div>
           </div>
           <div className="hero-visual">
+            <div className="terminal-panel">
+              <div className="terminal-header">
+                <span>Signal Engine</span>
+                <Activity size={16} />
+              </div>
+              <div className="signal-row">
+                <span>Valuation</span>
+                <div className="signal-track"><span style={{ width: '72%' }} /></div>
+                <strong>72</strong>
+              </div>
+              <div className="signal-row">
+                <span>Growth</span>
+                <div className="signal-track"><span style={{ width: '86%' }} /></div>
+                <strong>86</strong>
+              </div>
+              <div className="signal-row">
+                <span>Risk</span>
+                <div className="signal-track warning"><span style={{ width: '41%' }} /></div>
+                <strong>41</strong>
+              </div>
+            </div>
             <div className="floating-card card-1">
               <span className="card-icon">
                 <TrendingUp size={24} />
@@ -93,7 +114,7 @@ const Home = () => {
             </div>
             <div className="floating-card card-2">
               <span className="card-icon">
-                <Building2 size={24} />
+                <ShieldCheck size={24} />
               </span>
               <div className="card-data">
                 <span className="card-value">A+</span>
@@ -148,7 +169,7 @@ const Home = () => {
             <p>Join thousands of investors using AI to make better decisions</p>
             <Link to="/register" className="cta-btn">
               Start Researching Now
-              <span className="btn-arrow">→</span>
+              <ArrowRight size={18} />
             </Link>
           </div>
         </div>

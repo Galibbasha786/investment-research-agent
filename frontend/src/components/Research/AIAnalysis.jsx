@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Brain, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Loader } from 'lucide-react';
+import { AlertTriangle, Brain, BriefcaseBusiness, RefreshCcw, Rocket, ShieldAlert, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Loader, WalletCards } from 'lucide-react';
 import './AIAnalysis.css';
 
 const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
@@ -32,15 +32,15 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
       setLoading(true);
       setError(null);
 
-      console.log('🔄 Running AI Analysis for:', symbol);
-      console.log('📊 Company Data:', companyData);
+      console.log('Running AI Analysis for:', symbol);
+      console.log('Company Data:', companyData);
 
       const response = await axios.post('/api/ai/analyze', {
         symbol: symbol,
         force
       });
 
-      console.log('✅ AI Analysis Response:', response.data);
+      console.log('AI Analysis Response:', response.data);
 
       if (response.data.success && response.data.data) {
         // Ensure the data has the expected structure
@@ -114,7 +114,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
         setError('No analysis data received');
       }
     } catch (err) {
-      console.error('❌ AI Analysis Error:', err);
+      console.error('AI Analysis Error:', err);
       setError(err.response?.data?.message || 'AI analysis failed. Please try again.');
     } finally {
       setLoading(false);
@@ -163,7 +163,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
       // Check if we already have analysis in the data
       const hasAnalysis = companyData.aiAnalysis || companyData.analysis;
       if (hasAnalysis) {
-        console.log('📦 Using existing analysis data');
+        console.log('Using existing analysis data');
         // Format existing data
         const existingData = companyData.aiAnalysis || companyData.analysis;
         if (hasMeaningfulAnalysis(existingData)) {
@@ -197,11 +197,11 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
           <div className="loader-spinner"></div>
           <p>AI Agents are analyzing {companyData?.profile?.name || 'the company'}...</p>
           <div className="agent-status">
-            <span className="agent-dot active">🧠 Financial Analysis</span>
-            <span className="agent-dot active">📊 SWOT Analysis</span>
-            <span className="agent-dot active">💼 Business Model</span>
-            <span className="agent-dot active">⚠️ Risk Assessment</span>
-            <span className="agent-dot active">🎯 Final Recommendation</span>
+            <span className="agent-dot active"><WalletCards size={14} /> Financial Analysis</span>
+            <span className="agent-dot active"><TrendingUp size={14} /> SWOT Analysis</span>
+            <span className="agent-dot active"><BriefcaseBusiness size={14} /> Business Model</span>
+            <span className="agent-dot active"><ShieldAlert size={14} /> Risk Assessment</span>
+            <span className="agent-dot active"><CheckCircle size={14} /> Final Recommendation</span>
           </div>
         </div>
       </div>
@@ -226,7 +226,8 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
           <h3>Ready for AI Analysis</h3>
           <p>Get comprehensive AI-powered analysis of {companyData?.profile?.name || 'this company'}</p>
           <button onClick={() => runAIAnalysis()} className="ai-analyze-btn">
-            🚀 Run AI Analysis
+            <Rocket size={18} />
+            Run AI Analysis
           </button>
         </div>
       </div>
@@ -241,12 +242,12 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
   const businessModel = safeGet(analysisData, 'businessModel', {});
   const risk = safeGet(analysisData, 'risk', {});
 
-  console.log('📊 Rendering Analysis:', { recommendation, financial, swot, businessModel, risk });
+  console.log('Rendering Analysis:', { recommendation, financial, swot, businessModel, risk });
 
   return (
     <div className="ai-analysis-results fade-in">
       <div className="ai-header">
-        <h3>🧠 AI Multi-Agent Analysis</h3>
+        <h3><Brain size={20} /> AI Multi-Agent Analysis</h3>
         <span className="ai-badge">Powered by Gemini</span>
       </div>
 
@@ -311,7 +312,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
       {/* Analysis Details */}
       <div className="analysis-details">
         <div className="analysis-section financial">
-          <h4>💰 Financial Health</h4>
+          <h4><WalletCards size={18} /> Financial Health</h4>
           <div className="score-badge">
             Score: {financial?.score || 'N/A'}/100
           </div>
@@ -339,7 +340,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
         </div>
 
         <div className="analysis-section swot">
-          <h4>📊 SWOT Analysis</h4>
+          <h4><TrendingUp size={18} /> SWOT Analysis</h4>
           <div className="swot-grid">
             <div className="swot-strengths">
               <span className="swot-label">Strengths</span>
@@ -377,7 +378,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
         </div>
 
         <div className="analysis-section business">
-          <h4>💼 Business Model</h4>
+          <h4><BriefcaseBusiness size={18} /> Business Model</h4>
           <p><strong>Moat:</strong> {businessModel?.economicMoat || 'N/A'}</p>
           <p><strong>Strength Score:</strong> {businessModel?.strengthScore || 'N/A'}/100</p>
           <p>{businessModel?.description || 'Business model analysis in progress'}</p>
@@ -392,7 +393,7 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
         </div>
 
         <div className="analysis-section risk">
-          <h4>⚠️ Risk Assessment</h4>
+          <h4><AlertTriangle size={18} /> Risk Assessment</h4>
           <div className="risk-scores">
             {risk?.riskScores ? (
               <>
@@ -439,7 +440,8 @@ const AIAnalysis = ({ symbol, companyData, onAnalysisComplete }) => {
       {/* Regenerate Button */}
       <div className="regenerate-section">
         <button onClick={() => runAIAnalysis(true)} className="regenerate-btn">
-          🔄 Regenerate Analysis
+          <RefreshCcw size={16} />
+          Regenerate Analysis
         </button>
       </div>
     </div>

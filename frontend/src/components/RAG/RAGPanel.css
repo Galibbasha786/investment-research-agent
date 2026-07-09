@@ -1,9 +1,10 @@
 .rag-panel {
-  background: var(--bg-card);
-  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)), var(--bg-card);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   padding: 1.5rem;
   margin-top: 2rem;
+  box-shadow: var(--shadow-card);
 }
 
 .rag-header {
@@ -16,6 +17,9 @@
 .rag-header h3 {
   font-size: 1.1rem;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
 
 .rag-status {
@@ -57,7 +61,7 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   transition: var(--transition);
   font-size: 0.9rem;
 }
@@ -68,7 +72,7 @@
 }
 
 .tab-btn.active {
-  background: rgba(108, 92, 231, 0.1);
+  background: rgba(20, 184, 166, 0.1);
   color: var(--accent-primary);
 }
 
@@ -89,7 +93,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.85rem;
@@ -102,7 +106,7 @@
 
 .process-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.2);
 }
 
 .process-btn:disabled {
@@ -139,7 +143,7 @@
   padding: 0.75rem 1rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.95rem;
   transition: var(--transition);
@@ -160,7 +164,7 @@
   background: var(--gradient-main);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
   display: flex;
@@ -170,7 +174,7 @@
 
 .qa-form button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.2);
 }
 
 .qa-form button:disabled {
@@ -207,7 +211,7 @@
   padding: 0.75rem 1rem;
   background: rgba(225, 112, 85, 0.12);
   border: 1px solid rgba(225, 112, 85, 0.35);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--accent-danger);
   font-size: 0.9rem;
 }
@@ -220,8 +224,8 @@
 .qa-item {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background: var(--bg-secondary);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+  border-radius: var(--radius-sm);
   border-left: 3px solid var(--accent-primary);
 }
 
@@ -259,10 +263,10 @@
 
 .source-tag {
   padding: 0.2rem 0.6rem;
-  background: rgba(108, 92, 231, 0.1);
-  border-radius: 12px;
+  background: rgba(20, 184, 166, 0.1);
+  border-radius: 999px;
   font-size: 0.7rem;
-  color: var(--accent-secondary);
+  color: var(--accent-success);
 }
 
 /* Documents Section */
@@ -280,9 +284,10 @@
 }
 
 .stat-card {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.035);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
   text-align: center;
 }
 
@@ -300,9 +305,10 @@
 }
 
 .documents-info {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.035);
   padding: 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
 }
 
 .documents-info h4 {
@@ -325,7 +331,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1.5rem;
 }
 
@@ -405,7 +411,7 @@
 .metric-item {
   background: var(--bg-primary);
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   display: flex;
   flex-direction: column;
 }
@@ -434,7 +440,7 @@
   background: var(--gradient-main);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: var(--transition);
   margin-top: 1rem;
@@ -442,7 +448,7 @@
 
 .generate-rec-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+  box-shadow: 0 16px 32px rgba(20, 184, 166, 0.2);
 }
 
 .generate-rec-btn:disabled {
@@ -476,6 +482,9 @@
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .chunk-search {
@@ -485,7 +494,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   padding: 0.6rem 0.8rem;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   margin-bottom: 1.2rem;
   color: var(--text-muted);
 }
@@ -509,9 +518,9 @@
 }
 
 .chunk-card {
-  background: var(--bg-secondary);
+  background: rgba(255, 255, 255, 0.035);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   transition: all 0.2s ease-in-out;
 }
@@ -535,8 +544,8 @@
 .chunk-badge {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--accent-primary);
-  background: rgba(108, 92, 231, 0.1);
+  color: var(--accent-success);
+  background: rgba(20, 184, 166, 0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 4px;
 }
@@ -551,7 +560,7 @@
 .expand-toggle-btn {
   background: transparent;
   border: none;
-  color: var(--accent-primary);
+  color: var(--accent-success);
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
@@ -561,7 +570,7 @@
 }
 
 .expand-toggle-btn:hover {
-  background: rgba(108, 92, 231, 0.05);
+  background: rgba(20, 184, 166, 0.08);
 }
 
 .chunk-card-body {
@@ -580,7 +589,7 @@
   text-align: center;
   padding: 2rem;
   background: var(--bg-secondary);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: 0.9rem;
   border: 1px dashed var(--border-color);

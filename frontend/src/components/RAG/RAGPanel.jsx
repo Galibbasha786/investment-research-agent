@@ -112,7 +112,7 @@ const RAGPanel = ({ symbol, companyData }) => {
   return (
     <div className="rag-panel">
       <div className="rag-header">
-        <h3>📚 RAG Knowledge Base</h3>
+        <h3><BookOpen size={20} /> RAG Knowledge Base</h3>
         <div className="rag-status">
           <span className={`status-dot ${vectorStoreStatus.initialized ? 'active' : 'inactive'}`} />
           <span>{vectorStoreStatus.documentCount || 0} documents</span>
@@ -274,18 +274,18 @@ const RAGPanel = ({ symbol, companyData }) => {
             <div className="documents-info">
               <h4>How RAG Works</h4>
               <ol>
-                <li>📄 Annual reports are fetched from SEC EDGAR</li>
-                <li>🔍 Documents are split into semantic chunks</li>
-                <li>🧠 Chunks are embedded using Gemini AI</li>
-                <li>📚 Embedded chunks are stored in vector database</li>
-                <li>💬 Questions are answered with relevant context</li>
-                <li>📊 Recommendations are evidence-based</li>
+                <li>Annual reports are fetched from SEC EDGAR</li>
+                <li>Documents are split into semantic chunks</li>
+                <li>Chunks are embedded using Gemini AI</li>
+                <li>Embedded chunks are stored in vector database</li>
+                <li>Questions are answered with relevant context</li>
+                <li>Recommendations are evidence-based</li>
               </ol>
             </div>
 
             {/* Document Content Chunks Viewer */}
             <div className="report-viewer-section">
-              <h4>📄 Processed Report Chunks</h4>
+              <h4><FileText size={18} /> Processed Report Chunks</h4>
               
               <div className="chunk-search">
                 <Search size={16} />
@@ -364,9 +364,6 @@ const RAGPanel = ({ symbol, companyData }) => {
               <div className="recommendation-result">
                 <div className={`rec-header ${recommendation.recommendation?.toLowerCase() || 'hold'}`}>
                   <h4>
-                    {recommendation.recommendation === 'Invest' && '✅'}
-                    {recommendation.recommendation === 'Hold' && '⏳'}
-                    {recommendation.recommendation === 'Pass' && '❌'}
                     {recommendation.recommendation || 'Hold'}
                   </h4>
                   <span>Confidence: {recommendation.confidenceScore || 0}%</span>
@@ -401,7 +398,7 @@ const RAGPanel = ({ symbol, companyData }) => {
                     <h5>Risks</h5>
                     <ul>
                       {recommendation.risks?.map((risk, i) => (
-                        <li key={i}>⚠️ {risk}</li>
+                        <li key={i}>{risk}</li>
                       ))}
                     </ul>
                   </div>
