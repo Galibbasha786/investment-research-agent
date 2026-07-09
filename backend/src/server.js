@@ -23,8 +23,12 @@ import advancedRoutes from './routes/advanced.js';
 connectDB();
 
 const app = express();
+const rawFrontendUrl = process.env.FRONTEND_URL;
+const normalizedFrontendUrl = rawFrontendUrl ? rawFrontendUrl.replace(/\/$/, '') : null;
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL,
+  normalizedFrontendUrl,
+  'https://investment-research-agent-flame.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174'
 ].filter(Boolean);
@@ -32,7 +36,9 @@ const allowedOrigins = [
 // CORS - MUST BE BEFORE ANY ROUTES
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Normalize incoming origin to remove trailing slash just in case
+    const normalizedOrigin = origin ? origin.replace(/\/$/, '') : '';
+    if (!origin || allowedOrigins.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
