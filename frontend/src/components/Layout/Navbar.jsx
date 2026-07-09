@@ -42,6 +42,12 @@ const Navbar = () => {
               <li>
   <Link to="/news" className="nav-link">News</Link>
 </li>
+<li>
+                <Link to="/advanced" className="nav-link">
+                  Advanced
+                  <span className="nav-badge">AI</span>
+                </Link>
+              </li>
               <li className="nav-user">
                 <span className="user-avatar">
                   {user?.name?.charAt(0) || 'U'}

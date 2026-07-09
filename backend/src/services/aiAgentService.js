@@ -1,6 +1,10 @@
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
-import { Annotation, StateGraph, END } from '@langchain/langgraph';
+import { Annotation, StateGraph, START, END } from '@langchain/langgraph';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { JsonOutputParser, StringOutputParser } from '@langchain/core/output_parsers';
+import { RunnableSequence, RunnableLambda } from '@langchain/core/runnables';
+import { z } from 'zod';
 
 // Initialize Gemini AI
 const getLLM = () => {
@@ -386,289 +390,272 @@ const InvestmentAnalysisState = Annotation.Root({
 
 // Agent Node Functions
 
+// Financial Analysis Agent prompt template
+const financialAnalysisPrompt = ChatPromptTemplate.fromMessages([
+  [
+    'system',
+    'You are a financial analyst expert. Always respond in valid JSON format. No markdown fences.',
+  ],
+  [
+    'human',
+    `You are a Financial Analysis Expert. Analyze the following company.
+
+Company: {companyName} ({symbol})
+
+Financial Ratios:
+- P/E: {pe}  P/B: {pb}  ROE: {roe}%  ROA: {roa}%
+- Current Ratio: {currentRatio}  D/E: {debtToEquity}
+- Gross Margin: {grossMargin}%  Net Margin: {netMargin}%  Beta: {beta}
+
+Revenue Trends:
+{revenueTrends}
+
+Cash Flow:
+{cashFlow}
+
+Respond with JSON: {{ "score": <0-100>, "strengths": [...], "weaknesses": [...], "redFlags": [...], "assessment": "...", "recommendations": [...] }}`,
+  ],
+]);
+
 // 1. Financial Analysis Agent
 const financialAnalysisAgent = async (state) => {
   try {
-    const llm = getLLM();
     const { companyData } = state;
-    
-    const prompt = `
-You are a Financial Analysis Expert. Analyze the following company's financial data and provide a comprehensive analysis.
-
-Company: ${companyData.profile?.name || 'Unknown'} (${companyData.profile?.symbol || 'N/A'})
-
-Financial Ratios:
-- P/E Ratio: ${companyData.ratios?.pe || 'N/A'}
-- P/B Ratio: ${companyData.ratios?.pb || 'N/A'}
-- ROE: ${companyData.ratios?.roe || 'N/A'}%
-- ROA: ${companyData.ratios?.roa || 'N/A'}%
-- Current Ratio: ${companyData.ratios?.currentRatio || 'N/A'}
-- Debt to Equity: ${companyData.ratios?.debtToEquity || 'N/A'}
-- Gross Margin: ${companyData.ratios?.grossMargin || 'N/A'}%
-- Net Margin: ${companyData.ratios?.netMargin || 'N/A'}%
-- Beta: ${companyData.ratios?.beta || 'N/A'}
-
-Revenue Trends (last 5 years):
-${companyData.revenueTrends?.map(t => 
-  `Year ${t.year || 'N/A'}: Revenue: ${formatMillions(t.revenue)}, Growth: ${formatPercent(t.revenueGrowth)}`
-).join('\n') || 'No revenue data available'}
-
-Cash Flow:
-${companyData.cashFlow?.map(t =>
-  `Year ${t.year || 'N/A'}: Free Cash Flow: ${formatMillions(t.freeCashFlow)}`
-).join('\n') || 'No cash flow data available'}
-
-Provide:
-1. Financial Health Score (0-100)
-2. Key Strengths in Financials
-3. Key Weaknesses in Financials
-4. Financial Red Flags (if any)
-5. Overall Financial Assessment
-6. Specific Recommendations based on financials
-
-Format your response as JSON with keys: score, strengths, weaknesses, redFlags, assessment, recommendations.
-`;
-
-    const response = await llm.invoke([
-      new SystemMessage('You are a financial analyst expert. Always respond in valid JSON format.'),
-      new HumanMessage(prompt)
+    // RunnableSequence: ChatPromptTemplate → LLM → JsonOutputParser
+    const chain = RunnableSequence.from([
+      financialAnalysisPrompt,
+      getLLM(),
+      new JsonOutputParser(),
     ]);
 
-    const analysis = parseJsonResponse(response.content, 'Financial analysis agent');
-    
-    return {
-      ...state,
-      financialAnalysis: analysis,
-      currentStep: 'swot'
-    };
+    const analysis = await chain.invoke({
+      companyName:  companyData.profile?.name || 'Unknown',
+      symbol:       companyData.profile?.symbol || 'N/A',
+      pe:           companyData.ratios?.pe || 'N/A',
+      pb:           companyData.ratios?.pb || 'N/A',
+      roe:          companyData.ratios?.roe || 'N/A',
+      roa:          companyData.ratios?.roa || 'N/A',
+      currentRatio: companyData.ratios?.currentRatio || 'N/A',
+      debtToEquity: companyData.ratios?.debtToEquity || 'N/A',
+      grossMargin:  companyData.ratios?.grossMargin || 'N/A',
+      netMargin:    companyData.ratios?.netMargin || 'N/A',
+      beta:         companyData.ratios?.beta || 'N/A',
+      revenueTrends: companyData.revenueTrends?.map(t =>
+        `Year ${t.year || 'N/A'}: ${formatMillions(t.revenue)}, Growth: ${formatPercent(t.revenueGrowth)}`
+      ).join('\n') || 'No revenue data',
+      cashFlow: companyData.cashFlow?.map(t =>
+        `Year ${t.year || 'N/A'}: FCF ${formatMillions(t.freeCashFlow)}`
+      ).join('\n') || 'No cash flow data',
+    });
+
+    return { ...state, financialAnalysis: analysis, currentStep: 'swot' };
   } catch (error) {
     return {
       ...state,
       errors: appendAgentError(state, 'Financial Analysis', error),
       financialAnalysis: buildFallbackFinancialAnalysis(state.companyData),
-      currentStep: 'swot'
+      currentStep: 'swot',
     };
   }
 };
 
+// SWOT prompt template
+const swotPrompt = ChatPromptTemplate.fromMessages([
+  ['system', 'You are a strategic analyst. Always respond in valid JSON format. No markdown fences.'],
+  [
+    'human',
+    `Perform a SWOT Analysis for {companyName} (Industry: {industry}).
+
+Description: {description}
+Revenue Growth: {revenueGrowth} | Net Margin: {netMargin}% | D/E: {debtToEquity} | ROE: {roe}%
+
+Return JSON: {{ "strengths": [...], "weaknesses": [...], "opportunities": [...], "threats": [...] }}`,
+  ],
+]);
+
 // 2. SWOT Analysis Agent
 const swotAnalysisAgent = async (state) => {
   try {
-    const llm = getLLM();
     const { companyData } = state;
-    
-    const prompt = `
-You are a Strategic Analyst. Perform a SWOT Analysis for the following company.
-
-Company: ${companyData.profile?.name || 'Unknown'}
-Industry: ${companyData.profile?.industry || 'N/A'}
-Description: ${companyData.profile?.description || 'N/A'}
-
-Financial Context:
-- Revenue Growth: ${formatPercent(companyData.revenueTrends?.[0]?.revenueGrowth)}
-- Profit Margin: ${companyData.ratios?.netMargin || 'N/A'}%
-- Debt to Equity: ${companyData.ratios?.debtToEquity || 'N/A'}
-- ROE: ${companyData.ratios?.roe || 'N/A'}%
-
-Based on this information and general market knowledge:
-1. Identify STRENGTHS (internal positive factors)
-2. Identify WEAKNESSES (internal negative factors)
-3. Identify OPPORTUNITIES (external positive factors)
-4. Identify THREATS (external negative factors)
-
-Format your response as JSON with arrays: strengths, weaknesses, opportunities, threats.
-Each item should be a string with clear, actionable insight.
-`;
-
-    const response = await llm.invoke([
-      new SystemMessage('You are a strategic analyst. Always respond in valid JSON format.'),
-      new HumanMessage(prompt)
+    // RunnableSequence: ChatPromptTemplate → LLM → JsonOutputParser
+    const chain = RunnableSequence.from([
+      swotPrompt,
+      getLLM(),
+      new JsonOutputParser(),
     ]);
 
-    const swot = parseJsonResponse(response.content, 'SWOT analysis agent');
-    
-    return {
-      ...state,
-      swotAnalysis: swot,
-      currentStep: 'businessModel'
-    };
+    const swot = await chain.invoke({
+      companyName:   companyData.profile?.name || 'Unknown',
+      industry:      companyData.profile?.industry || 'N/A',
+      description:   (companyData.profile?.description || 'N/A').substring(0, 400),
+      revenueGrowth: formatPercent(companyData.revenueTrends?.[0]?.revenueGrowth),
+      netMargin:     companyData.ratios?.netMargin || 'N/A',
+      debtToEquity:  companyData.ratios?.debtToEquity || 'N/A',
+      roe:           companyData.ratios?.roe || 'N/A',
+    });
+
+    return { ...state, swotAnalysis: swot, currentStep: 'businessModel' };
   } catch (error) {
     return {
       ...state,
       errors: appendAgentError(state, 'SWOT Analysis', error),
       swotAnalysis: buildFallbackSWOTAnalysis(state.companyData),
-      currentStep: 'businessModel'
+      currentStep: 'businessModel',
     };
   }
 };
 
+// Business model prompt template
+const businessModelPrompt = ChatPromptTemplate.fromMessages([
+  ['system', 'You are a business model analyst. Always respond in valid JSON format. No markdown fences.'],
+  [
+    'human',
+    `Analyze the business model of {companyName} (Industry: {industry}).
+Description: {description}
+
+Return JSON: {{ "description": "...", "revenueStreams": [...], "customerSegments": [...], "competitiveAdvantage": "...", "economicMoat": "strong|medium|weak|none", "strengthScore": <0-100> }}`,
+  ],
+]);
+
 // 3. Business Model Agent
 const businessModelAgent = async (state) => {
   try {
-    const llm = getLLM();
     const { companyData } = state;
-    
-    const prompt = `
-You are a Business Model Analyst. Analyze the business model of the following company.
-
-Company: ${companyData.profile?.name || 'Unknown'}
-Industry: ${companyData.profile?.industry || 'N/A'}
-Description: ${companyData.profile?.description || 'N/A'}
-
-Provide:
-1. Business Model Description (how they make money)
-2. Revenue Streams (primary and secondary)
-3. Customer Segments (who they serve)
-4. Competitive Advantage (what makes them unique)
-5. Economic Moat (strong/medium/weak/none)
-6. Business Model Strength Score (0-100)
-
-Format your response as JSON with keys: description, revenueStreams, customerSegments, competitiveAdvantage, economicMoat, strengthScore.
-Use only strings for description, competitiveAdvantage, and economicMoat. Use flat arrays of strings for revenueStreams and customerSegments. Do not return nested objects or nested arrays.
-`;
-
-    const response = await llm.invoke([
-      new SystemMessage('You are a business model analyst. Always respond in valid JSON format.'),
-      new HumanMessage(prompt)
+    // RunnableSequence: ChatPromptTemplate → LLM → JsonOutputParser
+    const chain = RunnableSequence.from([
+      businessModelPrompt,
+      getLLM(),
+      new JsonOutputParser(),
     ]);
 
-    const businessModel = parseJsonResponse(response.content, 'Business model agent');
-    
-    return {
-      ...state,
-      businessModelAnalysis: businessModel,
-      currentStep: 'risk'
-    };
+    const businessModel = await chain.invoke({
+      companyName: companyData.profile?.name || 'Unknown',
+      industry:    companyData.profile?.industry || 'N/A',
+      description: (companyData.profile?.description || 'N/A').substring(0, 600),
+    });
+
+    return { ...state, businessModelAnalysis: businessModel, currentStep: 'risk' };
   } catch (error) {
     return {
       ...state,
       errors: appendAgentError(state, 'Business Model', error),
       businessModelAnalysis: buildFallbackBusinessModelAnalysis(state.companyData),
-      currentStep: 'risk'
+      currentStep: 'risk',
     };
   }
 };
 
+// Risk assessment prompt template
+const riskPrompt = ChatPromptTemplate.fromMessages([
+  ['system', 'You are a risk analyst. Always respond in valid JSON format. No markdown fences.'],
+  [
+    'human',
+    `Assess investment risks for {companyName} (Industry: {industry}).
+
+Indicators: D/E={debtToEquity} | Current Ratio={currentRatio} | Beta={beta} | Rev Growth={revenueGrowth}
+
+Return JSON: {{ "riskScores": {{ "financial": <1-10>, "business": <1-10>, "market": <1-10>, "regulatory": <1-10>, "competitive": <1-10>, "operational": <1-10> }}, "overallRiskScore": <0-100>, "keyRisks": [...], "mitigationStrategies": [...] }}`,
+  ],
+]);
+
 // 4. Risk Assessment Agent
 const riskAssessmentAgent = async (state) => {
   try {
-    const llm = getLLM();
     const { companyData } = state;
-    
-    const prompt = `
-You are a Risk Analyst. Assess the risks associated with investing in the following company.
-
-Company: ${companyData.profile?.name || 'Unknown'}
-Industry: ${companyData.profile?.industry || 'N/A'}
-
-Financial Indicators:
-- Debt to Equity: ${companyData.ratios?.debtToEquity || 'N/A'}
-- Current Ratio: ${companyData.ratios?.currentRatio || 'N/A'}
-- Beta: ${companyData.ratios?.beta || 'N/A'}
-- Revenue Growth: ${formatPercent(companyData.revenueTrends?.[0]?.revenueGrowth)}
-
-Identify and score the following risks (1-10, where 10 is highest risk):
-1. Financial Risk
-2. Business Risk
-3. Market Risk
-4. Regulatory Risk
-5. Competitive Risk
-6. Operational Risk
-
-Provide:
-1. Risk Scores for each category
-2. Overall Risk Score (0-100)
-3. Top 3 key risks to monitor
-4. Mitigation strategies
-
-Format your response as JSON with keys: riskScores, overallRiskScore, keyRisks, mitigationStrategies.
-Use riskScores keys exactly: financial, business, market, regulatory, competitive, operational. Use flat arrays of strings for keyRisks and mitigationStrategies.
-`;
-
-    const response = await llm.invoke([
-      new SystemMessage('You are a risk analyst. Always respond in valid JSON format.'),
-      new HumanMessage(prompt)
+    // RunnableSequence: ChatPromptTemplate → LLM → JsonOutputParser
+    const chain = RunnableSequence.from([
+      riskPrompt,
+      getLLM(),
+      new JsonOutputParser(),
     ]);
 
-    const riskAssessment = parseJsonResponse(response.content, 'Risk assessment agent');
-    
-    return {
-      ...state,
-      riskAssessment: riskAssessment,
-      currentStep: 'recommendation'
-    };
+    const riskAssessment = await chain.invoke({
+      companyName:   companyData.profile?.name || 'Unknown',
+      industry:      companyData.profile?.industry || 'N/A',
+      debtToEquity:  companyData.ratios?.debtToEquity || 'N/A',
+      currentRatio:  companyData.ratios?.currentRatio || 'N/A',
+      beta:          companyData.ratios?.beta || 'N/A',
+      revenueGrowth: formatPercent(companyData.revenueTrends?.[0]?.revenueGrowth),
+    });
+
+    return { ...state, riskAssessment, currentStep: 'recommendation' };
   } catch (error) {
     return {
       ...state,
       errors: appendAgentError(state, 'Risk Assessment', error),
       riskAssessment: buildFallbackRiskAssessment(state.companyData),
-      currentStep: 'recommendation'
+      currentStep: 'recommendation',
     };
   }
 };
 
-// 5. Recommendation Agent (Final Decision Maker)
+// Recommendation Zod schema for withStructuredOutput
+const RecommendationSchema = z.object({
+  recommendation:  z.enum(['Invest', 'Hold', 'Pass']),
+  confidenceScore: z.number().min(0).max(100),
+  reasoning:       z.array(z.string()),
+  keyDrivers:      z.array(z.string()),
+  risksToMonitor:  z.array(z.string()),
+});
+
+// Recommendation prompt template
+const recommendationPrompt = ChatPromptTemplate.fromMessages([
+  ['system', 'You are the Chief Investment Officer making final investment decisions.'],
+  [
+    'human',
+    `Make a final investment recommendation for {companyName} ({symbol}).
+
+Financial Score: {financialScore} | Assessment: {financialAssessment}
+SWOT Strengths: {strengths} | Weaknesses: {weaknesses}
+Business Moat: {economicMoat} | Strength Score: {businessScore}
+Overall Risk: {riskScore} | Key Risks: {keyRisks}
+
+Decision must be "Invest", "Hold", or "Pass".`,
+  ],
+]);
+
+// 5. Recommendation Agent
 const recommendationAgent = async (state) => {
   try {
-    const llm = getLLM();
-    const { 
-      companyData, 
-      financialAnalysis, 
-      swotAnalysis, 
-      businessModelAnalysis, 
-      riskAssessment 
-    } = state;
-    
-    const prompt = `
-You are the Chief Investment Officer. Based on all the analysis provided, make a final investment recommendation.
+    const { companyData, financialAnalysis, swotAnalysis, businessModelAnalysis, riskAssessment } = state;
 
-Company: ${companyData.profile?.name || 'Unknown'} (${companyData.profile?.symbol || 'N/A'})
-
-Financial Analysis:
-- Score: ${financialAnalysis?.score || 'N/A'}
-- Assessment: ${financialAnalysis?.assessment || 'N/A'}
-
-SWOT Analysis:
-- Strengths: ${swotAnalysis?.strengths?.join(', ') || 'N/A'}
-- Weaknesses: ${swotAnalysis?.weaknesses?.join(', ') || 'N/A'}
-
-Business Model:
-- Strength Score: ${businessModelAnalysis?.strengthScore || 'N/A'}
-- Economic Moat: ${businessModelAnalysis?.economicMoat || 'N/A'}
-
-Risk Assessment:
-- Overall Risk Score: ${riskAssessment?.overallRiskScore || 'N/A'}
-- Key Risks: ${riskAssessment?.keyRisks?.join(', ') || 'N/A'}
-
-Provide:
-1. Recommendation: "Invest", "Hold", or "Pass"
-2. Confidence Score: 0-100
-3. 3-5 bullet points of key reasoning
-4. Key drivers for the decision
-5. Risks to monitor going forward
-
-Format your response as JSON with keys: recommendation, confidenceScore, reasoning (array), keyDrivers (array), risksToMonitor (array).
-The recommendation value must be exactly one of: Invest, Hold, Pass.
-`;
-
-    const response = await llm.invoke([
-      new SystemMessage('You are a chief investment officer making final decisions. Always respond in valid JSON format.'),
-      new HumanMessage(prompt)
-    ]);
-
-    const recommendation = parseJsonResponse(response.content, 'Recommendation agent');
-    
-    return {
-      ...state,
-      recommendation: recommendation,
-      currentStep: 'complete'
+    const promptVars = {
+      companyName:        companyData.profile?.name || 'Unknown',
+      symbol:             companyData.profile?.symbol || 'N/A',
+      financialScore:     financialAnalysis?.score || 'N/A',
+      financialAssessment: (financialAnalysis?.assessment || 'N/A').substring(0, 200),
+      strengths:          (swotAnalysis?.strengths || []).slice(0, 3).join('; ') || 'N/A',
+      weaknesses:         (swotAnalysis?.weaknesses || []).slice(0, 3).join('; ') || 'N/A',
+      economicMoat:       businessModelAnalysis?.economicMoat || 'N/A',
+      businessScore:      businessModelAnalysis?.strengthScore || 'N/A',
+      riskScore:          riskAssessment?.overallRiskScore || 'N/A',
+      keyRisks:           (riskAssessment?.keyRisks || []).slice(0, 3).join('; ') || 'N/A',
     };
+
+    // Try withStructuredOutput first (Zod-typed)
+    try {
+      const structuredLLM = getLLM().withStructuredOutput(RecommendationSchema, {
+        name: 'investment_recommendation',
+      });
+      const messages = await recommendationPrompt.formatMessages(promptVars);
+      const recommendation = await structuredLLM.invoke(messages);
+      return { ...state, recommendation, currentStep: 'complete' };
+    } catch {
+      // Fallback: RunnableSequence with JsonOutputParser
+      const chain = RunnableSequence.from([
+        recommendationPrompt,
+        getLLM(),
+        new JsonOutputParser(),
+      ]);
+      const recommendation = await chain.invoke(promptVars);
+      return { ...state, recommendation, currentStep: 'complete' };
+    }
   } catch (error) {
     return {
       ...state,
       errors: appendAgentError(state, 'Recommendation', error),
       recommendation: buildFallbackRecommendation(state),
-      currentStep: 'complete'
+      currentStep: 'complete',
     };
   }
 };
@@ -721,20 +708,20 @@ export const buildInvestmentAgent = () => {
 
   // Add nodes
   workflow.addNode('financialAnalysisNode', financialAnalysisAgent);
-  workflow.addNode('swotAnalysisNode', swotAnalysisAgent);
-  workflow.addNode('businessModelNode', businessModelAgent);
-  workflow.addNode('riskAssessmentNode', riskAssessmentAgent);
-  workflow.addNode('recommendationNode', recommendationAgent);
-  workflow.addNode('finalOutputNode', finalOutputAgent);
+  workflow.addNode('swotAnalysisNode',      swotAnalysisAgent);
+  workflow.addNode('businessModelNode',     businessModelAgent);
+  workflow.addNode('riskAssessmentNode',    riskAssessmentAgent);
+  workflow.addNode('recommendationNode',    recommendationAgent);
+  workflow.addNode('finalOutputNode',       finalOutputAgent);
 
-  // Define edges
-  workflow.setEntryPoint('financialAnalysisNode');
+  // Use START for explicit entry point (modern LangGraph API)
+  workflow.addEdge(START,                   'financialAnalysisNode');
   workflow.addEdge('financialAnalysisNode', 'swotAnalysisNode');
-  workflow.addEdge('swotAnalysisNode', 'businessModelNode');
-  workflow.addEdge('businessModelNode', 'riskAssessmentNode');
-  workflow.addEdge('riskAssessmentNode', 'recommendationNode');
-  workflow.addEdge('recommendationNode', 'finalOutputNode');
-  workflow.addEdge('finalOutputNode', END);
+  workflow.addEdge('swotAnalysisNode',      'businessModelNode');
+  workflow.addEdge('businessModelNode',     'riskAssessmentNode');
+  workflow.addEdge('riskAssessmentNode',    'recommendationNode');
+  workflow.addEdge('recommendationNode',    'finalOutputNode');
+  workflow.addEdge('finalOutputNode',       END);
 
   return workflow.compile();
 };

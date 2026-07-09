@@ -178,3 +178,12 @@
     pointer-events: auto;
   }
 }
+.nav-badge {
+  background: var(--gradient-main);
+  color: white;
+  font-size: 0.55rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  margin-left: 0.25rem;
+  font-weight: 700;
+}

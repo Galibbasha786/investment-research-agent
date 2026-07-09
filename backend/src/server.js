@@ -18,6 +18,7 @@ import aiRoutes from './routes/ai.js'; // ADD THIS IMPORT
 import ragRoutes from './routes/rag.js'
 import scoreRoutes from './routes/score.js';
 import newsRoutes from './routes/news.js';
+import advancedRoutes from './routes/advanced.js';
 // Connect to database
 connectDB();
 
@@ -62,6 +63,7 @@ app.use('/api/ai', aiRoutes); // ADD THIS LINE
 app.use('/api/rag', ragRoutes);
 app.use('/api/score', scoreRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/advanced', advancedRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ 
@@ -94,6 +96,7 @@ const server = app.listen(PORT, () => {
   console.log(`📡 Environment: ${process.env.NODE_ENV}`);
   console.log(`🌐 API URL: http://localhost:${PORT}`);
   console.log('✨ AI Analysis Available at /api/ai');
+  console.log('🚀 Advanced LangGraph Agents Available at /api/advanced');
 });
 
 server.on('error', (error) => {

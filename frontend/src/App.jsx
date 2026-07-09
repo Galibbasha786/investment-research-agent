@@ -12,6 +12,7 @@ import Research from './pages/Research';
 import './App.css';
 import ResearchDetail from './pages/ResearchDetail';
 import NewsAnalysis from './components/News/NewsAnalysis';
+import AdvancedAnalysis from './components/Advanced/AdvancedAnalysis';
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
@@ -71,6 +72,14 @@ function AppContent() {
                   element={
                     <ProtectedRoute>
                       <NewsAnalysis />
+                    </ProtectedRoute>
+                  } 
+                />
+                 <Route 
+                  path="/advanced" 
+                  element={
+                    <ProtectedRoute>
+                      <AdvancedAnalysis />
                     </ProtectedRoute>
                   } 
                 />
