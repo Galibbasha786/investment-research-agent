@@ -120,6 +120,25 @@ class VectorStoreService {
     this.embeddings   = null;
     this.initialized  = false;
     this.docSymbolMap = new Map(); // id → symbol
+
+    // Add backwards-compatible collection interface for controllers
+    this.collection = {
+      get: async ({ where }) => {
+        const symbol = where?.symbol?.toUpperCase();
+        const docs = (this.vectorStore?.memoryVectors || [])
+          .filter(v => !symbol || v.metadata?.symbol === symbol)
+          .map(v => ({
+            id: v.id,
+            document: v.content,
+            metadata: v.metadata
+          }));
+        return {
+          ids: docs.map(d => d.id),
+          documents: docs.map(d => d.document),
+          metadatas: docs.map(d => d.metadata)
+        };
+      }
+    };
   }
 
   // ── Initialize ──────────────────────────────────────────────────────────────
