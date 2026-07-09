@@ -17,6 +17,7 @@ import researchRoutes from './routes/research.js';
 import aiRoutes from './routes/ai.js'; // ADD THIS IMPORT
 import ragRoutes from './routes/rag.js'
 import scoreRoutes from './routes/score.js';
+import newsRoutes from './routes/news.js';
 // Connect to database
 connectDB();
 
@@ -60,7 +61,7 @@ app.use('/api/ai', aiRoutes); // ADD THIS LINE
 
 app.use('/api/rag', ragRoutes);
 app.use('/api/score', scoreRoutes);
-
+app.use('/api/news', newsRoutes);
 // Health check
 app.get('/health', (req, res) => {
   res.status(200).json({ 

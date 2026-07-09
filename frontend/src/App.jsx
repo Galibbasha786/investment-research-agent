@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import Research from './pages/Research';
 import './App.css';
 import ResearchDetail from './pages/ResearchDetail';
+import NewsAnalysis from './components/News/NewsAnalysis';
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   
@@ -65,6 +66,14 @@ function AppContent() {
     </ProtectedRoute>
   } 
 />
+<Route 
+                  path="/news" 
+                  element={
+                    <ProtectedRoute>
+                      <NewsAnalysis />
+                    </ProtectedRoute>
+                  } 
+                />
 
                 <Route path="*" element={<Navigate to="/" />} />
               </Routes>

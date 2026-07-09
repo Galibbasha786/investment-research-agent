@@ -39,6 +39,9 @@ const Navbar = () => {
               <li>
                 <Link to="/research" className="nav-link">Research</Link>
               </li>
+              <li>
+  <Link to="/news" className="nav-link">News</Link>
+</li>
               <li className="nav-user">
                 <span className="user-avatar">
                   {user?.name?.charAt(0) || 'U'}
