@@ -16,8 +16,8 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Set axios default config
-  axios.defaults.baseURL = 'http://localhost:5001';
+  // Set axios default config dynamically for deployment
+  axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
   axios.defaults.withCredentials = true;
 
   // Load user from localStorage on mount
