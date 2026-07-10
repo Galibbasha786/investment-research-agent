@@ -66,12 +66,12 @@ const Home = () => {
             </div>
             <div className="hero-stats">
               <div className="stat-item">
-                <span className="stat-number">50+</span>
+                <span className="stat-number">10+</span>
                 <span className="stat-label">Analysis Features</span>
               </div>
               <div className="stat-divider"></div>
               <div className="stat-item">
-                <span className="stat-number">95%</span>
+                <span className="stat-number">80%</span>
                 <span className="stat-label">Accuracy Rate</span>
               </div>
               <div className="stat-divider"></div>
@@ -117,8 +117,8 @@ const Home = () => {
                 <ShieldCheck size={24} />
               </span>
               <div className="card-data">
-                <span className="card-value">A+</span>
-                <span className="card-label">ESG Rating</span>
+                <span className="card-value">AI</span>
+                <span className="card-label">Deep Analysis</span>
               </div>
             </div>
             <div className="floating-card card-3">
